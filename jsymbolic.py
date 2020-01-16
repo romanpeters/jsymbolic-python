@@ -44,7 +44,6 @@ class PreProcessor(object):
         raise NotImplementedError
 
 
-
 class App(object):
     def __init__(self, jar: str, ram: int = 6, country: str = 'EN'):
         self.jsymbolic_path = Path(jar)
