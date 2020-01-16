@@ -2,6 +2,8 @@
 Python interface for jSymbolic 2
 
 ## Example code
+
+Python code:
 ```
 import jsymbolic
 
@@ -15,3 +17,6 @@ jsym.create_config("/path/to/dir/or/file.midi", config_output="config.txt")
 
 jsym.run_config("config.txt")
 ```
+
+
+from your command line:

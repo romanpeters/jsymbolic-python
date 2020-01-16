@@ -14,27 +14,6 @@
    <comments></comments>
 
    <feature>
-      <name>Basic Pitch Histogram</name>
-      <description>A feature vector consisting of bin magnitudes of the basic pitch histogram described in the jSymbolic manual. Each bin corresponds to one of the 128 MIDI pitches, ordered from lowest to highest, and with an interval of a semitone between each (enharmonic equivalents are assigned the same pitch number). Bin 60 corresponds to middle C. The magnitude of of each bin is proportional to the the number of times notes occurred at the bin's pitch in the piece, relative to all other pitches in the piece (the histogram is normalized).</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>128</parallel_dimensions>
-   </feature>
-
-   <feature>
-      <name>Pitch Class Histogram</name>
-      <description>A feature vector consisting of bin magnitudes of the pitch class histogram described in the jSymbolic manual. Each bin corresponds to one of the 12 pitch classes, ordered in increasing pitch with an interval of a semitone between each (enharmonic equivalents are assigned the same pitch class number). The first bin corresponds to the most common pitch class in the piece under consideration (it does NOT correspond to a set pitch class). The magnitude of of each bin is proportional to the the number of times notes occurred at the bin's pitch class in the piece, relative to all other pitch classes in the piece (the histogram is normalized).</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>12</parallel_dimensions>
-   </feature>
-
-   <feature>
-      <name>Folded Fifths Pitch Class Histogram</name>
-      <description>A feature vector consisting of bin magnitudes of the folded fifths pitch class histogram described in the jSymbolic manual. Each bin corresponds to one of the 12 pitch classes, and the bins are ordered such that adjacent bins are separated by an ascending perfect fifth. Bin 0 corresponds to C. Enharmonic equivalents are assigned the same pitch class number. The magnitude of of each bin is proportional to the the number of times notes occurred at the bin's pitch class in the piece, relative to all other pitch classes in the piece (the histogram is normalized).</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>12</parallel_dimensions>
-   </feature>
-
-   <feature>
       <name>Number of Pitches</name>
       <description>Number of unique pitches that occur at least once in the piece. Enharmonic equivalents are grouped together for the purpose of this calculation.</description>
       <is_sequential>true</is_sequential>
@@ -301,13 +280,6 @@
    </feature>
 
    <feature>
-      <name>Melodic Interval Histogram</name>
-      <description>A feature vector consisting of the bin magnitudes of the melodic interval histogram described above. Each bin corresponds to a melodic interval, and the bin index indicates the number of semitones comprising the interval associated with the bin (there are 128 bins in all). For example, bin 0 corresponds to repeated pitches, bin 1 to a melodic interval of one semitone, bin 2 to a melodic interval of 2 semitones, etc. The magnitude of each bin is proportional to the fraction of melodic intervals in the piece that are of the kind associated with the bin (this histogram is normalized). Rising and falling intervals are treated as identical. Melodies are assumed to be contained within individual MIDI tracks and channels, so melodic intervals are found separately for each track and channel before being combined in this histogram. It is also assumed that there is only one melody at a time per MIDI channel (if multiple notes occur simultaneously on the same MIDI tick on the same MIDI track and channel, then all notes but the first note on that tick are ignored). Other than this, all notes on the same track and the same channel are treated as if they are part of a single melody. It is also assumed that melodies do not cross MIDI tracks or channels (i.e. that they are each separately contained in their own track and channel). Only pitched notes are considered, so all notes on the unpitched MIDI Channel 10 are ignored.</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>128</parallel_dimensions>
-   </feature>
-
-   <feature>
       <name>Most Common Melodic Interval</name>
       <description>Number of semitones corresponding to the most frequently occurring melodic interval.</description>
       <is_sequential>true</is_sequential>
@@ -473,27 +445,6 @@
       <description>Average number of notes that go by in a MIDI channel before a note's pitch is repeated (including the repeated note itself). This is calculated across each channel individually before being combined. Notes that occur simultaneously on the same MIDI tick are only counted as one note for the purpose of this calculation. Notes that do not recur after 16 notes in the same channel are not included in this calculation. Set to 0 if there are no qualifying repeated notes in the piece.</description>
       <is_sequential>true</is_sequential>
       <parallel_dimensions>1</parallel_dimensions>
-   </feature>
-
-   <feature>
-      <name>Vertical Interval Histogram</name>
-      <description>A feature vector consisting of bin magnitudes of the vertical interval histogram described in the jSymbolic manual. Each of the bins is associated with a different vertical pitch interval, and is labeled with the number of semitones in that corresponding interval. More specifically, these are numbered from 0 (a unison) to 127 (a vertical interval of 127 semitones). The magnitude of each bin is found by going through a recoding MIDI tick by MIDI tick and noting all vertical intervals that are sounding at each tick, as well as the MIDI velocities of the pair of notes involved in each vertical interval. The end result is a histogram that indicates which vertical intervals are present, and how significant these vertical intervals are relative to one another, with a weighting based on both MIDI velocity and the aggregated durations with which each interval is held throughout the piece. Finally, the histogram is normalized.</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>128</parallel_dimensions>
-   </feature>
-
-   <feature>
-      <name>Wrapped Vertical Interval Histogram</name>
-      <description>A feature vector consisting of bin magnitudes of the wrapped vertical interval histogram described in the jSymbolic manual. Each of the bins is associated with a different vertical pitch interval, and is labeled with the number of semitones in that corresponding interval. More specifically, these are numbered from 0 (a unison) to 11 (a vertical interval of 11 semitones). The magnitude of each bin is found by going through a recoding MIDI tick by MIDI tick and noting all vertical intervals that are sounding at each tick, as well as the MIDI velocities of the pair of notes involved in each vertical interval. Intervals larger than 11 semitones are wrapped (e.g. an octave (12 semitones) is added to the bin for unisons (0 semitones)). The end result is a histogram that indicates which vertical intervals are present, and how significant these vertical intervals are relative to one another, with a weighting based on both MIDI velocity and the aggregated durations with which each interval is held throughout the piece. Finally, the histogram is normalized.</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>12</parallel_dimensions>
-   </feature>
-
-   <feature>
-      <name>Chord Type Histogram</name>
-      <description>A feature vector consisting of bin magnitudes of the chord type histogram described in the jSymbolic manual. This is a normalized histogram that has bins labeled with types of chords (in the following order and with the indicated identifying codes): partial chords consisting of just two pitch classes [0], minor triads [1], major triads [2], diminished triads [3], augmented triads [4], other triads [5], minor seventh chords [6], dominant seventh chords [7], major seventh chords [8], other chords consisting of four pitch classes [9], and complex chords with more than four pitch classes [10]. The bin magnitudes are calculated by going through MIDI ticks one by one and incrementing the counter for the bin that corresponds to the chord, if any, that is present during eah given tick; the result is that the chords in this histogram are weighted by the duration with which each chord is played. All inversions are treated as equivalent and octave doubling is ignored in the calculation of this histogram. Melodic behaviour is not considered, so arpeggios are not counted in this histogram.</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>11</parallel_dimensions>
    </feature>
 
    <feature>
@@ -721,13 +672,6 @@
    </feature>
 
    <feature>
-      <name>Initial Time Signature</name>
-      <description>A feature vector consisting of two values. The first is the numerator of the first specified time signature in the piece, and the second is the denominator of the same time signature. Set to 4/4 if no time signature is specified.</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>2</parallel_dimensions>
-   </feature>
-
-   <feature>
       <name>Simple Initial Meter</name>
       <description>Set to 1 if the initial meter is a standard simple meter (i.e. if the numerator of the time signature is 2, 3 or 4) and to 0 otherwise.</description>
       <is_sequential>true</is_sequential>
@@ -802,13 +746,6 @@
       <description>How much the note density per quarter note (average number of note onsetss per idealized quarter note duration) varies throughout the piece. Takes into account all notes in all voices, including both pitched and unpitched notes. In order to calculate this, the piece is broken into windows of 8 quarter note duration, and the note density of each window is calculated. The final value of this feature is then found by calculating the standard deviation of the note densities of these windows. Set to 0 if there is insufficient music for more than one window.</description>
       <is_sequential>true</is_sequential>
       <parallel_dimensions>1</parallel_dimensions>
-   </feature>
-
-   <feature>
-      <name>Rhythmic Value Histogram</name>
-      <description>A feature vector, representing a normalized histogram where the value of each bin specifies the fraction of all notes in the music with a rhythmic value corresponding to that of the given bin. The bins are numbered as follows: thirty second notes (or less) [0], sixteenth notes [1], eighth notes [2], dotted eighth notes [3], quarter notes [4], dotted quarter notes [5], half notes [6], dotted half notes [7], whole notes [8], dotted whole notes [9], double whole notes [10] and dotted double whole notes (or more ) [11]. Both pitched and unpitched notes are included in this histogram. Tempo is, of course, not relevant to this histogram. Notes with durations not precisely matching one of these rhythmic note values are mapped to the closest note value (to filter out the effects of rubato or uneven human rhythmic performances, for example). This histogram is calculated without regard to the dynamics, voice or instrument of any given note.</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>12</parallel_dimensions>
    </feature>
 
    <feature>
@@ -945,13 +882,6 @@
    </feature>
 
    <feature>
-      <name>Rhythmic Value Median Run Lengths Histogram</name>
-      <description>A normalized feature vector that indicates, for each rhythmic value, the normalized median number of times that notes with that rhythmic value occur consecutively (either vertically or horizontally) in the same voice (MIDI channel and track). Each bin corresponds to a different rhythmic value, and they are numbered as follows: thirty second notes (or less) [0], sixteenth notes [1], eighth notes [2], dotted eighth notes [3], quarter notes [4], dotted quarter notes [5], half notes [6], dotted half notes [7], whole notes [8], dotted whole notes [9], double whole notes [10] and dotted double whole notes (or more ) [11]. Both pitched and unpitched notes are included in this histogram. Tempo is, of course, not relevant to this histogram. Notes with durations not precisely matching one of these rhythmic note values are mapped to the closest note value (to filter out the effects of rubato or uneven human rhythmic performances, for example). This histogram is calculated without regard to dynamics.</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>12</parallel_dimensions>
-   </feature>
-
-   <feature>
       <name>Mean Rhythmic Value Run Length</name>
       <description>Mean number of notes of the same rhythmic value that occur consecutively (either vertically or horizontally) in the same voice (MIDI channel and track). This calculation includes both pitched and unpitched notes, is calculated after rhythmic quantization and not influenced by neither tempo nor dynamics.</description>
       <is_sequential>true</is_sequential>
@@ -970,13 +900,6 @@
       <description>Standard deviation of the numbers of notes of the same rhythmic value that occur consecutively (either vertically or horizontally) in the same voice (MIDI channel and track). This calculation includes both pitched and unpitched notes, is calculated after rhythmic quantization and not influenced by neither tempo nor dynamics.</description>
       <is_sequential>true</is_sequential>
       <parallel_dimensions>1</parallel_dimensions>
-   </feature>
-
-   <feature>
-      <name>Rhythmic Value Variability in Run Lengths Histogram</name>
-      <description>A normalized feature vector that indicates, for each rhythmic value, the normalized standard deviation of the number of times that notes with that rhythmic value occur consecutively (either vertically or horizontally) in the same voice (MIDI channel and track). Each bin corresponds to a different rhythmic value, and they are numbered as follows: thirty second notes (or less) [0], sixteenth notes [1], eighth notes [2], dotted eighth notes [3], quarter notes [4], dotted quarter notes [5], half notes [6], dotted half notes [7], whole notes [8], dotted whole notes [9], double whole notes [10] and dotted double whole notes (or more ) [11]. Both pitched and unpitched notes are included in this histogram. Tempo is, of course, not relevant to this histogram. Notes with durations not precisely matching one of these rhythmic note values are mapped to the closest note value (to filter out the effects of rubato or uneven human rhythmic performances, for example). This histogram is calculated without regard to dynamics.</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>12</parallel_dimensions>
    </feature>
 
    <feature>
@@ -1082,13 +1005,6 @@
       <description>Standard deviation of the total amount of time (expressed as a fraction of the duration of a quarter note) per active MIDI channel in which no notes are sounding in that channel. Only channels containing at least one note are counted in this calculation. Non-pitched (MIDI channel 10) notes ARE considered in this calculation.</description>
       <is_sequential>true</is_sequential>
       <parallel_dimensions>1</parallel_dimensions>
-   </feature>
-
-   <feature>
-      <name>Beat Histogram Tempo Standardized</name>
-      <description>A feature vector consisting of the bin magnitudes of the beat histogram described in the jSymbolic manual. However, the tempo of the music is standardized to 120 BPM throughout the piece before this histogram is calculated. This means that variations in tempo within a single piece are in effect eliminated for the purposes of this histogram. The tempo-independent beat histograms of different pieces can also be compared in a way that is independent of potential tempo differences between the pieces. Rubato and dynamics do still influence the tempo-independent beat histogram, however. Also, the first 40 bins are not included in this feature vector, as is the case with the basic beat histogram. Each bin corresponds to a different beats per minute periodicity, with tempo increasing with the bin index. The magnitude of each bin is proportional to the cumulative loudness (MIDI velocity) of the notes that occur at that bin's rhythmic periodicity. The histogram is normalized.</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>161</parallel_dimensions>
    </feature>
 
    <feature>
@@ -1288,13 +1204,6 @@
    </feature>
 
    <feature>
-      <name>Beat Histogram</name>
-      <description>A feature vector consisting of the bin magnitudes of the beat histogram described in the jSymbolic manual. The first 40 bins are not included in this feature vector, however. Each bin corresponds to a different beats per minute periodicity, with tempo increasing with the bin index. The magnitude of each bin is proportional to the cumulative loudness (MIDI velocity) of the notes that occur at that bin's rhythmic periodicity. The histogram is normalized.</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>161</parallel_dimensions>
-   </feature>
-
-   <feature>
       <name>Number of Strong Rhythmic Pulses</name>
       <description>Number of beat histogram peaks with normalized magnitudes over 0.1.</description>
       <is_sequential>true</is_sequential>
@@ -1383,41 +1292,6 @@
       <description>Number of beat histogram peaks with magnitudes at least 30% as high as the magnitude of the highest peak, and whose bin labels are not integer multiples or factors (using only multipliers of 1, 2, 3, 4, 6 and 8, and with an accepted error of +/- 3 bins) of the bin label of the peak with the highest magnitude. This number is then divided by the total number of bins with frequencies over 30% of the highest magnitude.</description>
       <is_sequential>true</is_sequential>
       <parallel_dimensions>1</parallel_dimensions>
-   </feature>
-
-   <feature>
-      <name>Pitched Instruments Present</name>
-      <description>A feature vector indicating which pitched instruments are present. Has one entry for each of the 128 General MIDI Instrument patches (0 is Acoustic Piano, 40 is Violin, etc.). Each value is set to 1 if at least one note is played using the corresponding patch, or to 0 if that patch is never used.</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>128</parallel_dimensions>
-   </feature>
-
-   <feature>
-      <name>Unpitched Instruments Present</name>
-      <description>A feature vector indicating which unpitched instruments are present. Has one entry for each of the 47 MIDI Percussion Key Map instruments. Each value is set to 1 if at least one note is played using the corresponding instrument, or to 0 if that instrument is never used. It should be noted that only MIDI Channel 10 instruments 35 to 81 are included here, as they are the ones that meet the official standard (they are correspondingly indexed in this feature vector from 0 to 46, such that index 0 corresponds to Acoustic Bass Drum, index 4 corresponds to Hand Clap, etc.).</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>47</parallel_dimensions>
-   </feature>
-
-   <feature>
-      <name>Note Prevalence of Pitched Instruments</name>
-      <description>A feature vector indicating the fraction of (pitched) notes played with each of the 128 General MIDI Instrument patches (0 is Acoustic Piano, 40 is Violin, etc.). Has one entry for each of these instruments, and the value of each is set to the number of Note Ons played with the corresponding MIDI patch, divided by the total number of Note Ons in the piece.</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>128</parallel_dimensions>
-   </feature>
-
-   <feature>
-      <name>Note Prevalence of Unpitched Instruments</name>
-      <description>A feature vector indicating the fraction of (unpitched) notes played with each of the 47 MIDI Percussion Key Map instruments. Has one entry for each of these 47 instruments, and the value of each is set to the number of Note Ons played with the corresponding instrument, divided by the total number of Note Ons in the piece. It should be noted that only MIDI Channel 10 instruments 35 to 81 are included here, as they are the ones that meet the official standard (they are correspondingly indexed in this feature vector from 0 to 46, such that index 0 corresponds to Acoustic Bass Drum, index 4 corresponds to Hand Clap, etc.).</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>47</parallel_dimensions>
-   </feature>
-
-   <feature>
-      <name>Time Prevalence of Pitched Instruments</name>
-      <description>A feature vector indicating the fraction of time during which (pitched) notes are being sounded by each of the 128 General MIDI Instrument patches (0 is Acoustic Piano, 40 is Violin, etc.). Has one entry for each of these instruments, and the value of each is set to to the total time in seconds in a piece during which at least one note is being sounded with the corresponding MIDI patch, divided by the total length of the piece in seconds.</description>
-      <is_sequential>true</is_sequential>
-      <parallel_dimensions>128</parallel_dimensions>
    </feature>
 
    <feature>

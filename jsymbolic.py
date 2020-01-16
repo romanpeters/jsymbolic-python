@@ -15,7 +15,7 @@ def cd(newdir):
         os.chdir(prevdir)
 
 
-class JSymbolic(object):
+class JSymbolic(object):t
     def __init__(self, jar: str, ram: int=6):
         self.jsymbolic_path: Path = Path(jar)
         self.working_dir: Path = self.jsymbolic_path.parent
