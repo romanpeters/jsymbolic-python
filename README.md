@@ -5,7 +5,7 @@ Python interface for jSymbolic 2
 ```
 import jsymbolic
 
-jsym = jsymbolic.JSymbolic("/path/to/jSymbolic2.jar")
+jsym = jsymbolic.App("/path/to/jSymbolic2.jar")
 
 # analyse a MIDI file or a collection of MIDI files
 jsym.run("/path/to/dir/or/file.midi", xml_values_output="values.xml", xml_definitions_output="definitions.xml", csv=True)

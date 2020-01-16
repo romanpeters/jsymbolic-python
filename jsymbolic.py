@@ -15,12 +15,13 @@ def cd(newdir):
         os.chdir(prevdir)
 
 
-class JSymbolic(object):
-    def __init__(self, jar: str, ram: int=6):
+class App(object):
+    def __init__(self, jar: str, ram: int = 6, country: str = 'EN'):
         self.jsymbolic_path: Path = Path(jar)
         self.working_dir: Path = self.jsymbolic_path.parent
         self.config_path: Path = Path.joinpath(self.working_dir, "jSymbolicDefaultConfigs.txt")
         self.ram = ram
+        self.country = country
         self.validate()
 
         with open(self.config_path.absolute().as_posix(), "r") as f:
@@ -40,7 +41,7 @@ class JSymbolic(object):
 
     def run_config(self, config_path: str = None):
         """"""
-        command = f"java -Xmx{self.ram}g " \
+        command = f"java -Duser.country={self.country} -Xmx{self.ram}g " \
                   f"-jar {self.jsymbolic_path} " \
                   f"-configrun {config_path if config_path else self.config_path}"
         print(command)
@@ -49,10 +50,10 @@ class JSymbolic(object):
             arff: bool = False, csv: bool = False, window_length: int = None, window_overlap_fraction: float = None):
         """A collection is a directory filled with MIDI files"""
         command = f"java -Xmx{self.ram}g" \
-                  f" -jar jSymbolic.jar " \
+                  f' -jar "{self.jsymbolic_path}" ' \
                   f"{'-arff ' if arff else ''}" \
                   f"{'-csv ' if csv else ''}" \
-                  f"{path} {xml_values_output} {xml_definitions_output} " \
+                  f'"{path}" "{xml_values_output}" "{xml_definitions_output}" ' \
                   f"{window_length if window_length else ''} {window_overlap_fraction if (window_length and window_overlap_fraction) else ''}"
         print(command)
 
@@ -66,6 +67,7 @@ class JSymbolic(object):
         <input_files>
             {path}
             """
+
 
 
 
