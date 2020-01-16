@@ -53,7 +53,7 @@ class JSymbolic(object):
                   f"{'-arff ' if arff else ''}" \
                   f"{'-csv ' if csv else ''}" \
                   f"{path} {xml_values_output} {xml_definitions_output} " \
-                  f"{window_length if window_length} {window_overlap_fraction if window_length and window_overlap_fraction}"
+                  f"{window_length if window_length else ''} {window_overlap_fraction if (window_length and window_overlap_fraction) else ''}"
         print(command)
 
     def create_config(self, path: str, xml_values_output: str = "values.xml", xml_definitions_output: str = "definitions.xml",
