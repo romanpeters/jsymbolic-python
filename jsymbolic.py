@@ -1,7 +1,10 @@
 import os
 import logging
+import subprocess
+import shlex
 from pathlib import Path
 from contextlib import contextmanager
+
 
 
 @contextmanager
@@ -14,18 +17,45 @@ def cd(newdir):
     finally:
         os.chdir(prevdir)
 
+class PreProcessor(object):
+    def __init__(self, input_path: str, output_path: str = None, copy: bool = True, recursive: bool = True):
+        # Make aware if permanent changes will be made
+        if not copy:
+            logging.warning("Copy is set to false, original file names will be overwritten!")
+            assert not output_path, "Output path given but unused"
+        else:
+            assert copy and output_path, "Copy is set to true, an output path must be provided"
+
+        self.input_path = Path(input_path)
+        self.output_path = Path(output_path)
+        self.copy = copy
+        self.recursive = recursive
+
+    def run(self):
+        if self.input_path.is_dir():
+            self._change_collection()
+        else:
+            self._change_file()
+
+    def _change_file(self):
+        raise NotImplementedError
+
+    def _change_collection(self):
+        raise NotImplementedError
+
+
 
 class App(object):
     def __init__(self, jar: str, ram: int = 6, country: str = 'EN'):
-        self.jsymbolic_path: Path = Path(jar)
-        self.working_dir: Path = self.jsymbolic_path.parent
-        self.config_path: Path = Path.joinpath(self.working_dir, "jSymbolicDefaultConfigs.txt")
+        self.jsymbolic_path = Path(jar)
+        self.working_dir = self.jsymbolic_path.parent
+        self.config_path = Path.joinpath(self.working_dir, "jSymbolicDefaultConfigs.txt")
         self.ram = ram
         self.country = country
         self.validate()
 
         with open(self.config_path.absolute().as_posix(), "r") as f:
-            self.config = f.readlines()
+            self.config = f.read().splitlines()
 
     def validate(self):
         """Checks if paths exist"""
@@ -40,22 +70,35 @@ class App(object):
         self.validate()
 
     def run_config(self, config_path: str = None):
-        """"""
+        """Run using a config file with the paths of the MIDI files
+        Unless you have such a config file, you're probably better of using run() instead.
+        """
         command = f"java -Duser.country={self.country} -Xmx{self.ram}g " \
                   f"-jar {self.jsymbolic_path} " \
                   f"-configrun {config_path if config_path else self.config_path}"
         print(command)
 
+    def get_config(self):
+        """Returns the current config"""
+        return '\n'.join(self.config)
+
     def run(self, path: str, xml_values_output: str = "values.xml", xml_definitions_output: str = "definitions.xml",
             arff: bool = False, csv: bool = False, window_length: int = None, window_overlap_fraction: float = None):
-        """A collection is a directory filled with MIDI files"""
+        """Run the current configuration
+        Added parameters will overwrite the configuration"""
         command = f"java -Xmx{self.ram}g" \
-                  f' -jar "{self.jsymbolic_path}" ' \
+                  f' -jar "jSymbolic2.jar" ' \
                   f"{'-arff ' if arff else ''}" \
                   f"{'-csv ' if csv else ''}" \
                   f'"{path}" "{xml_values_output}" "{xml_definitions_output}" ' \
                   f"{window_length if window_length else ''} {window_overlap_fraction if (window_length and window_overlap_fraction) else ''}"
-        print(command)
+
+        with cd(self.working_dir.as_posix()):
+            logging.info("Executing:", command)
+            process = subprocess.run(shlex.split(command),
+                                     stdout=subprocess.PIPE,
+                                     universal_newlines=True)
+            logging.info(process.stdout)
 
     def create_config(self, path: str, xml_values_output: str = "values.xml", xml_definitions_output: str = "definitions.xml",
                       arff: bool = False, csv: bool = False, window_length: int = None, window_overlap_fraction: float = None):
@@ -67,6 +110,7 @@ class App(object):
         <input_files>
             {path}
             """
+
 
 
 
