@@ -5,9 +5,12 @@ import logging
 # todataframe.py
 import csv
 import numpy as np
+import pandas as pd
+import glob
 
+# todo: add path to read filenames from as a parmeter.
 
-def read_csv():
+def read_csv_from_folder(folder):
 	
 	midi_names = []
 	datasets = []
@@ -15,7 +18,21 @@ def read_csv():
 
 	# get midi files
 	# todo: get them from a folder or csv file automatically
-	filenames = ['examples/values.csv','examples/values.csv']
+	if not folder: # use current working directory
+		folder = os.getcwd()
+	
+	print(f'folder: {folder}')		
+	filenames =[]
+	for file in os.listdir(folder):
+		print(file)
+		if file.endswith(".csv"):
+			print(os.path.join(folder, file))
+			filenames.append(os.path.join(folder, file))
+	
+	print(filenames)
+	
+	# fallback
+	# filenames = ['examples/values.csv','examples/values.csv']
 
 	for filename in filenames:
 		# print(filename)
@@ -28,7 +45,8 @@ def read_csv():
 	print(datasets)
 
 	# todo: concat this into a matrix/dataframe
-
+	df = pd.DataFrame(datasets) 
+	print(df)
 
 
 def read_csv_file(filename,midi_names,datasets):
@@ -60,7 +78,8 @@ def read_csv_file(filename,midi_names,datasets):
 		print(f'There are {row_count} rows')
 		return midi_names,datasets
 
-read_csv()
+
+read_csv_from_folder("examples")
 
 
 # todo: fucntion to extract all column names, they are the first row in any csv file from Jsymbolic
