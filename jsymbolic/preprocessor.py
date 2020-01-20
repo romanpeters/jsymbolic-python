@@ -6,6 +6,7 @@ import shutil
 import time
 from pathlib import Path
 
+
 class FileItem(object):
     """Representation of an individual file
             can flatten itself and append its info to a CSV file"""
@@ -33,7 +34,7 @@ class FileItem(object):
 
     def append_csv(self):
         """Writes its info to CSV"""
-        with open(self.csv_file, 'a+') as file:
+        with open(self.csv_file, 'a') as file:
             csv_writer = csv.writer(file, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             csv_writer.writerow([self.index, self.name, self.output_name])
 
@@ -50,15 +51,22 @@ class PreProcessor(object):
             assert copy and output_path, "Copy is set to true, an output path must be provided"
 
         self.run_id = int(time.time())
+        self.csv_file = f"preprocessor_changes{self.run_id}.csv"
         self.input_path = Path(input_path)
         self.output_path = Path(output_path) if output_path else Path(input_path).parent
         self.copy = copy
         self.recursive = recursive
         self.current_index = 1
 
+
     def create_output_dir(self):
         logging.info(f"Creating output directory at {self.output_path.as_posix()}")
         os.makedirs(self.output_path.as_posix())
+
+    def create_csv_file(self):
+        with open(self.csv_file, 'w+') as file:
+            csv_writer = csv.writer(file, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            csv_writer.writerow(["index", "input name", "output name"])
 
     def run(self):
         if not self.copy:
@@ -79,7 +87,7 @@ class PreProcessor(object):
             logging.warning(f"Skipped {file_path_obj.as_posix()} because it is not a MIDI file")
             return
 
-        file_item = FileItem(path=file_path, index=self.current_index, csv_file=f"preprocessor_changes{self.run_id}.csv")
+        file_item = FileItem(path=file_path, index=self.current_index, csv_file=self.csv_file)
 
         dest_path = self.output_path.joinpath(file_item.output_name).as_posix()
         logging.info(f'renaming "{file_path}" -> "{dest_path}"')
