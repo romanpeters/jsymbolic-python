@@ -2,12 +2,10 @@ import sys
 import os
 import logging
 
-# todataframe.py
 import csv
 import numpy as np
 import pandas as pd
-import glob
-
+# todo: requirements 
 # todo: add path to read filenames from as a parmeter.
 
 def read_csv_from_folder(folder):
