@@ -21,6 +21,7 @@ class FileItem(object):
 
     @staticmethod
     def flatten(name):
+        """Removes special characters"""
         flatter = name.lower()
         flatter = flatter.replace(' ', '_')
 
@@ -31,6 +32,7 @@ class FileItem(object):
         return flat_name
 
     def append_csv(self):
+        """Writes its info to CSV"""
         with open(self.csv_file, 'a+') as file:
             csv_writer = csv.writer(file, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             csv_writer.writerow([self.index, self.name, self.output_name])
@@ -58,7 +60,6 @@ class PreProcessor(object):
         logging.info(f"Creating output directory at {self.output_path.as_posix()}")
         os.makedirs(self.output_path.as_posix())
 
-
     def run(self):
         if not self.copy:
             time.sleep(0.1)
@@ -74,14 +75,14 @@ class PreProcessor(object):
     def _change_file(self, file_path: str):
         # Only MIDI files
         file_path_obj = Path(file_path)
-        if not file_path_obj.is_file() or file_path_obj.suffix not in [".mid", ".midi"]:
+        if not file_path_obj.is_file() or file_path_obj.suffix.lower() not in [".mid", ".midi"]:
             logging.warning(f"Skipped {file_path_obj.as_posix()} because it is not a MIDI file")
             return
 
         file_item = FileItem(path=file_path, index=self.current_index, csv_file=f"preprocessor_changes{self.run_id}.csv")
 
         dest_path = self.output_path.joinpath(file_item.output_name).as_posix()
-        logging.warning(f'renaming "{file_path}" -> "{dest_path}"')
+        logging.info(f'renaming "{file_path}" -> "{dest_path}"')
 
         if not self.copy:
             shutil.move(file_path, dest_path)
@@ -95,7 +96,6 @@ class PreProcessor(object):
         self.current_index += 1
 
     def _change_collection(self):
-
         # Collect all the paths
         collection_files = {}
         for (dirpath, dirnames, filenames) in os.walk(self.input_path):
@@ -109,7 +109,3 @@ class PreProcessor(object):
         for collection, files in collection_files.items():
             for file in files:
                 self._change_file(Path(collection).joinpath(file).as_posix())
-
-
-PreProcessor(input_path="/Users/romanpeters/PycharmProjects/SMT/examples/data/input/",
-             output_path="/Users/romanpeters/PycharmProjects/SMT/examples/data/output").run()
