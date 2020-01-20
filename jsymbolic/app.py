@@ -3,18 +3,7 @@ import logging
 import subprocess
 import shlex
 from pathlib import Path
-from contextlib import contextmanager
-
-
-@contextmanager
-def cd(newdir):
-    """Safely change working directory"""
-    prevdir = os.getcwd()
-    os.chdir(os.path.expanduser(newdir))
-    try:
-        yield
-    finally:
-        os.chdir(prevdir)
+from jsymbolic.utils import cd
 
 
 class App(object):
