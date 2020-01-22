@@ -84,7 +84,7 @@ def read_csv_file(filename,midi_names,datasets):
 		return midi_names,datasets,columns
 
 
-read_csv_from_folder("examples")
+read_csv_from_folder("examples/data/output")
 
 
 # todo: fucntion to extract all column names, they are the first row in any csv file from Jsymbolic
