@@ -22,8 +22,8 @@ def read_csv_from_folder(folder):
 	print(f'folder: {folder}')		
 	filenames =[]
 	for file in os.listdir(folder):
-		print(file)
 		if file.endswith(".csv"):
+			print(f"Found CSV: {file}")
 			print(os.path.join(folder, file))
 			filenames.append(os.path.join(folder, file))
 	
@@ -39,18 +39,21 @@ def read_csv_from_folder(folder):
 		datasets = result[1]
 		columns = result[2]
 
-	print(f'Midi names and datasets:')
-	print(midi_names)
-	print(datasets)
-	columns.pop()
+	# print(f'Midi names and datasets:')
+	# print(midi_names)
+	# print(datasets)
+	# columns.pop()
 	# todo: concat this into a matrix/dataframe
 	df = pd.DataFrame(datasets) 
-	print(columns)
-	print(df.columns)
+	print("Creating dataframe..")
+	# print(df.columns)
+	columns.pop(0)
 	df.columns = columns
+	# print(columns)
 	print(df)
 
 	df.to_csv(path_or_buf="dataframe.csv",header=True,index=True)
+	print("./Written to dataframe.csv file")
 
 
 def read_csv_file(filename,midi_names,datasets):
@@ -73,8 +76,10 @@ def read_csv_file(filename,midi_names,datasets):
 			else:
 				midi_name = row[0]
 				midi_names.append(midi_name)
+
 				# print(midi_name)
 				row.pop(0)
+				# print(row)
 				datasets.append(np.array(row, dtype='<U10')) ## todo: set dtype properly
 				row_count += 1
 
