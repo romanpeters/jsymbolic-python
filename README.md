@@ -31,4 +31,9 @@ jsym.run(path=DIR_PATH, per_file=True, skip_processed=True)
 Optionally install tqdm for a progress bar when using `per_file=True`.  
 ```pip install tqdm```
 
-
+## Why?
+Why would you use jsymbolic-python instead of plain jSymbolic2?
+1. Prevent common jSymbolic2 problems, such as it running out of memory or CSV file creation failure.
+1. Safe batch processing: Failure on a single MIDI file does not stop the process, and the batch process can be interrupted and continued.
+1. Automatically use sane defaults.
+1. Allow for scripting your processing and pre-processing through Python.
