@@ -51,7 +51,7 @@ class PreProcessor(object):
             assert copy and output_path, "Copy is set to true, an output path must be provided"
 
         self.run_id = int(time.time())
-        self.csv_file = f"preprocessor_changes{self.run_id}.csv"
+        self.csv_file = Path(output_path).joinpath(f"preprocessor_changes{self.run_id}.csv").as_posix()
         self.input_path = Path(input_path)
         self.output_path = Path(output_path) if output_path else Path(input_path).parent
         self.copy = copy
@@ -79,6 +79,7 @@ class PreProcessor(object):
             self._change_collection()
         else:
             self._change_file(self.input_path)
+        logging.info("Pre-processing finished.")
 
     def _change_file(self, file_path: str):
         # Only MIDI files
