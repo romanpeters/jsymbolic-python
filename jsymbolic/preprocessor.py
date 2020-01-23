@@ -51,7 +51,7 @@ class PreProcessor(object):
             assert copy and output_path, "Copy is set to true, an output path must be provided"
 
         self.run_id = int(time.time())
-        self.csv_file = f"preprocessor_changes{self.run_id}.csv"
+        self.csv_file = Path(output_path).joinpath(f"preprocessor_changes{self.run_id}.csv").as_posix()
         self.input_path = Path(input_path)
         self.output_path = Path(output_path) if output_path else Path(input_path).parent
         self.copy = copy
@@ -79,6 +79,7 @@ class PreProcessor(object):
             self._change_collection()
         else:
             self._change_file(self.input_path)
+        print("Preprocessing completed!")
 
     def _change_file(self, file_path: str):
         # Only MIDI files
@@ -90,7 +91,7 @@ class PreProcessor(object):
         file_item = FileItem(path=file_path, index=self.current_index, csv_file=self.csv_file)
 
         dest_path = self.output_path.joinpath(file_item.output_name).as_posix()
-        logging.info(f'renaming "{file_path}" -> "{dest_path}"')
+        logging.debug(f'renaming "{file_path}" -> "{dest_path}"')
 
         if not self.copy:
             shutil.move(file_path, dest_path)
@@ -110,8 +111,6 @@ class PreProcessor(object):
             collection_files[dirpath] = filenames
             if not self.recursive:  # only files from the top dir if recursive=False
                 break
-        from pprint import pprint
-        print(collection_files)
 
         # change files
         for collection, files in collection_files.items():
