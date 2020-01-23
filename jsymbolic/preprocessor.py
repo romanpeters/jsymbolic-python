@@ -79,7 +79,7 @@ class PreProcessor(object):
             self._change_collection()
         else:
             self._change_file(self.input_path)
-        logging.info("Pre-processing finished.")
+        print("Preprocessing completed!")
 
     def _change_file(self, file_path: str):
         # Only MIDI files

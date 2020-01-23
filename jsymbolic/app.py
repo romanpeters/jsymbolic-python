@@ -81,6 +81,7 @@ class App(object):
         else:
             self.command.path = path
             self.execute_command()
+        print("jSymbolic processing completed!")
 
     def execute_command(self):
         """Run the current configuration
