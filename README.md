@@ -9,7 +9,6 @@ import jsymbolic
 
 # Optionally adjust the log level
 import logging
-logging.basicConfig()
 logging.getLogger().setLevel(logging.CRITICAL)
 
 DIR_PATH = "/path/to/some/output/dir"
