@@ -1,12 +1,19 @@
 import sys
 import os
 import logging
+import random
+# from random import seed
+# from random import random
+# seed random number generator
 
 import csv
 import numpy as np
 import pandas as pd
 # todo: requirements 
 # todo: add path to read filenames from as a parmeter.
+
+from random import seed
+
 
 def read_csv_from_folder(folder):
 	
@@ -44,11 +51,16 @@ def read_csv_from_folder(folder):
 	# print(datasets)
 	# columns.pop()
 	# todo: concat this into a matrix/dataframe
+	seed(1)
+
 	df = pd.DataFrame(datasets) 
 	print("Creating dataframe..")
 	# print(df.columns)
 	columns.pop(0)
 	df.columns = columns
+	rand_years = [random.randrange(1901, 2000) for iter in range(len(midi_names))]
+	# print(rand_years)
+	df.insert(0,"year",rand_years)
 	df.insert(0,"midi",midi_names)
 	# print(columns)
 	print(df)
