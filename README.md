@@ -7,6 +7,11 @@ Python code:
 ```
 import jsymbolic
 
+# Optionally adjust the log level
+import logging
+logging.basicConfig()
+logging.getLogger().setLevel(logging.CRITICAL)
+
 DIR_PATH = "/path/to/some/output/dir"
 
 # Run the preprocessor to rename the MIDI files and copy them to DIR_PATH.

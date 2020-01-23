@@ -90,7 +90,7 @@ class PreProcessor(object):
         file_item = FileItem(path=file_path, index=self.current_index, csv_file=self.csv_file)
 
         dest_path = self.output_path.joinpath(file_item.output_name).as_posix()
-        logging.info(f'renaming "{file_path}" -> "{dest_path}"')
+        logging.debug(f'renaming "{file_path}" -> "{dest_path}"')
 
         if not self.copy:
             shutil.move(file_path, dest_path)
@@ -110,8 +110,6 @@ class PreProcessor(object):
             collection_files[dirpath] = filenames
             if not self.recursive:  # only files from the top dir if recursive=False
                 break
-        from pprint import pprint
-        print(collection_files)
 
         # change files
         for collection, files in collection_files.items():
