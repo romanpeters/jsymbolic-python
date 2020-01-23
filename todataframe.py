@@ -49,6 +49,7 @@ def read_csv_from_folder(folder):
 	# print(df.columns)
 	columns.pop(0)
 	df.columns = columns
+	df.insert(0,"midi",midi_names)
 	# print(columns)
 	print(df)
 
@@ -78,6 +79,7 @@ def read_csv_file(filename,midi_names,datasets):
 				midi_names.append(midi_name)
 
 				# print(midi_name)
+				# row[0] = midi_name
 				row.pop(0)
 				# print(row)
 				datasets.append(np.array(row, dtype='<U10')) ## todo: set dtype properly
