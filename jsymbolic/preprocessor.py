@@ -4,8 +4,8 @@ import csv
 import re
 import shutil
 import time
+import glob
 from pathlib import Path
-
 
 class FileItem(object):
     """Representation of an individual file
@@ -42,7 +42,7 @@ class FileItem(object):
 class PreProcessor(object):
     """The PreProcessor can move and copy FileItem objects
             it works with directories as well as single files"""
-    def __init__(self, input_path: str, output_path: str = None, copy: bool = True, recursive: bool = True, group=False):
+    def __init__(self, input_path: str, output_path: str = None, copy: bool = True, recursive: bool = True, force: bool =False):
         # Make aware if permanent changes will be made
         if not copy:
             logging.warning("Copy is set to false, original file names will be overwritten!")
@@ -51,12 +51,19 @@ class PreProcessor(object):
             assert copy and output_path, "Copy is set to true, an output path must be provided"
 
         self.run_id = int(time.time())
-        self.csv_file = Path(output_path).joinpath(f"preprocessor_changes{self.run_id}.csv").as_posix()
         self.input_path = Path(input_path)
         self.output_path = Path(output_path) if output_path else Path(input_path).parent
+        self.csv_file = Path(output_path).joinpath(f"preprocessor_changes{self.run_id}.csv").as_posix()
         self.copy = copy
         self.recursive = recursive
+        self.force = force
         self.current_index = 1
+
+    def check_for_csv_file(self):
+        path_pattern = f"{self.output_path}/preprocessor_changes*.csv"
+        if glob.glob(path_pattern):
+            return True
+        return False
 
 
     def create_output_dir(self):
@@ -69,7 +76,10 @@ class PreProcessor(object):
             csv_writer.writerow(["index", "input name", "output name"])
 
     def run(self):
-        if not self.copy:
+        if self.check_for_csv_file() and not self.force:
+            if not input("There's already a preprocessor_changes.csv file, still want to preprocess? y/n ").lower()[0] == 'y':
+                return
+        if not self.copy and not self.force:
             time.sleep(0.1)
             if not input("Overwrite file name? y/n ").lower()[0] == 'y':
                 return
