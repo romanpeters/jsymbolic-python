@@ -18,7 +18,8 @@ class FileItem(object):
         self.collection = self.path.parent.name
         self.flat_name = self.flatten(self.name)
         self.flat_collection = self.flatten(self.collection)
-        self.output_name = f"{self.index}-{self.flat_collection}-{self.flat_name}"
+        # self.output_name = f"{self.index}-{self.flat_collection}-{self.flat_name}"
+        self.output_name = self.flat_name
 
     @staticmethod
     def flatten(name):
