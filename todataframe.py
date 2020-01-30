@@ -11,6 +11,8 @@ import numpy as np
 import pandas as pd
 # todo: requirements 
 # todo: add path to read filenames from as a parmeter.
+import ntpath
+
 
 from random import seed
 
@@ -87,7 +89,7 @@ def read_csv_file(filename,midi_names,datasets):
 
 				row_count += 1
 			else:
-				midi_name = row[0]
+				midi_name = ntpath.basename(row[0])
 				midi_names.append(midi_name)
 
 				# print(midi_name)
