@@ -71,14 +71,25 @@ def query_all_bins(bins, query):
     
     return bin_id
 
+all_data = pd.read_csv(filepath_or_buffer="dataframe.csv") 
+min_year = all_data['year'].min()
+max_year = all_data['year'].max()
+lowest_decade = min_year - (min_year % 10)
+highest_decade = max_year - (max_year % 10)
+n_decades = (highest_decade - lowest_decade) / 10
+bins = np.linspace(lowest_decade, highest_decade, n_decades + 1)
+print(f"Came up with the following bins: {bins}")
+print(f"Bins based on the following data:")
+print(f"min_year: {min_year}")
+print(f"max_year: {max_year}")
+print(f"lowest_decade: {lowest_decade}")
+print(f"highest_decade: {highest_decade}")
+print(f"n_decades: {n_decades}")
+binned_data = all_data.groupby(np.digitize(all_data['year'], bins))
 
 
-
-        
-
-        
-df = pd.read_csv(filepath_or_buffer="dataframe.csv") 
-pca_decomposition(df)
+# Bin the dataframe on a decade basis
+#pca_decomposition(df)
 
 
 #print(dataframe)
