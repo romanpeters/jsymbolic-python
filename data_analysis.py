@@ -76,8 +76,9 @@ min_year = all_data['year'].min()
 max_year = all_data['year'].max()
 lowest_decade = min_year - (min_year % 10)
 highest_decade = max_year - (max_year % 10)
-n_decades = (highest_decade - lowest_decade) / 10
-bins = np.linspace(lowest_decade, highest_decade, n_decades + 1)
+n_decades = ((highest_decade - lowest_decade) // 10) + 1
+bins = np.linspace(lowest_decade, highest_decade, n_decades, dtype=np.int32)
+
 print(f"Came up with the following bins: {bins}")
 print(f"Bins based on the following data:")
 print(f"min_year: {min_year}")
@@ -85,7 +86,26 @@ print(f"max_year: {max_year}")
 print(f"lowest_decade: {lowest_decade}")
 print(f"highest_decade: {highest_decade}")
 print(f"n_decades: {n_decades}")
-binned_data = all_data.groupby(np.digitize(all_data['year'], bins))
+
+# Initialize binned_data array of data frames, and array of np arrays that we'll use
+#   to set the bins. It is pretty idiotic but it is the way.
+binned_arrays = [[] for i in range(0, n_decades)]
+binned_data = []
+
+for lower in bins:
+    upper = lower + 10
+    binned_data.append(all_data.loc[(all_data['year'] >= lower) & (all_data['year'] < upper)])
+
+print(binned_data)
+
+# Put array data in new dataframes
+
+# binned_data = all_data.groupby(pd.cut(all_data['year'], bins), as_index=False)..to_frame()
+# for group in binned_data:
+#     decade = group['year'].min() - (group['year'].min() % 10)
+#     #print(f"data for decade {decade}:")
+#     print(f"{group}")
+
 
 
 # Bin the dataframe on a decade basis
