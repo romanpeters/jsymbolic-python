@@ -12,12 +12,38 @@ import pandas as pd
 # todo: requirements 
 # todo: add path to read filenames from as a parmeter.
 import ntpath
-
+import re
 
 from random import seed
 
 
-def read_csv_from_folder(folder):
+#copied from jsymbolic/preprocessor.py
+def flatten(name):
+    """Removes special characters"""
+    flatter = name.lower()
+    flatter = flatter.replace(' ', '_')
+
+    regex_filter = re.compile(r"[^a-zA-Z_.]")
+    flat_name = regex_filter.sub('', flatter)
+
+    logging.info(f"{name} -> {flat_name}")
+    return flat_name
+
+
+# mapping = pd.DataFrame ({'id':  [],'midi': [],'year': []}, columns = ['id','midi','year'])
+mapping = None
+
+def read_midi_mapping():
+
+	mapping = pd.read_csv("MIDItoYEAR.csv")
+	mapping.columns = ["id","midi","year"]
+	mapping["midi"] = mapping["midi"].apply(lambda x: flatten(ntpath.basename(x)))
+	mapping.to_csv(path_or_buf="mapping.csv",header=True,index=True)
+	return mapping
+	# print(mapping)
+
+
+def read_csv_from_folder(folder,mapping):
 	
 	midi_names = []
 	datasets = []
@@ -55,18 +81,19 @@ def read_csv_from_folder(folder):
 	# todo: concat this into a matrix/dataframe
 	seed(1)
 
-	df = pd.DataFrame(datasets) 
+	df1 = pd.DataFrame(datasets) 
 	print("Creating dataframe..")
-	# print(df.columns)
+	# print(df1.columns)
 	columns.pop(0)
-	df.columns = columns
+	df1.columns = columns
 	rand_years = [random.randrange(1901, 2000) for iter in range(len(midi_names))]
 	# print(rand_years)
-	df.insert(0,"year",rand_years)
-	df.insert(0,"midi",midi_names)
+	df1.insert(0,"year",rand_years)
+	df1.insert(0,"midi",midi_names)
 	# print(columns)
-	print(df)
+	print(df1)
 
+	df = pd.merge(df1, mapping, on='midi')
 	df.to_csv(path_or_buf="dataframe.csv",header=True,index=True)
 	print("./Written to dataframe.csv file")
 
@@ -105,7 +132,9 @@ def read_csv_file(filename,midi_names,datasets):
 		return midi_names,datasets,columns
 
 
-read_csv_from_folder("examples/data/output")
+
+mapping = read_midi_mapping()
+read_csv_from_folder("examples/data/output",mapping)
 
 
 # todo: fucntion to extract all column names, they are the first row in any csv file from Jsymbolic
