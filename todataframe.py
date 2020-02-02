@@ -129,7 +129,6 @@ def read_csv_file(filename,midi_names,datasets):
 
 
 mapping = read_midi_mapping()
-read_csv_from_folder("examples/data/output",mapping)
-
+read_csv_from_folder("/Users/romanpeters/Desktop/SMT_Project/RAG-private/RAG/run",mapping)
 
 # todo: fucntion to extract all column names, they are the first row in any csv file from Jsymbolic
