@@ -30,7 +30,7 @@ def read_midi_mapping():
 	mapping = pd.read_csv("combined_mapping.csv")
 	mapping.columns = ["id","midi_unformatted","year","midi_query","midi","match_score"]
 	
-	mapping.to_csv(path_or_buf="mapping.csv",header=True,index=True)
+	# mapping.to_csv(path_or_buf="mapping.csv",header=True,index=True)
 	return mapping
 	# print(mapping)
 
