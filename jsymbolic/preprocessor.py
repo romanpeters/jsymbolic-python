@@ -22,7 +22,7 @@ class FileItem(object):
         self.output_name = self.flat_name
 
     @staticmethod
-    def flatten(name):
+    def flatten(name: str):
         """Removes special characters"""
         flatter = name.lower()
         flatter = flatter.replace(' ', '_')
