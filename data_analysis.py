@@ -27,8 +27,8 @@ def pca_decomposition(data_frame):
     x = scaler.fit_transform(imputer.fit_transform(data_frame))
 
     # Alternatively, choose n_components to a user defined dimensionality, e.g:
-    #pca = PCA()
-    pca = PCA(n_components=10)
+    pca = PCA()
+    #pca = PCA(n_components=10)
     components = pca.fit_transform(x)
     pc_df = pd.DataFrame(data = components, columns = [f"principal component {x}" for x in range(0, pca.n_components_)])
     # print(pc_df)
@@ -75,24 +75,25 @@ def query_all_bins(bins, query):
     return bin_id
 
 all_data = pd.read_csv(filepath_or_buffer="data/dataframe.csv") 
+bin_size = 15
 min_year = np.int32(all_data['year'].min())
 max_year = np.int32(all_data['year'].max())
-lowest_decade = min_year - (min_year % 10)
-highest_decade = max_year - (max_year % 10)
-n_decades = ((highest_decade - lowest_decade) // 10) + 1
-bins = np.linspace(lowest_decade, highest_decade, n_decades, dtype=np.int32)
+lowest_bin = min_year - (min_year % bin_size)
+highest_bin = max_year - (max_year % bin_size)
+n_bins = ((highest_bin - lowest_bin) // bin_size) + 1
+bins = np.linspace(lowest_bin, highest_bin, n_bins, dtype=np.int32)
 
 print(f"Came up with the following bins: {bins}")
 print(f"Bins based on the following data:")
 print(f"min_year: {min_year}")
 print(f"max_year: {max_year}")
-print(f"lowest_decade: {lowest_decade}")
-print(f"highest_decade: {highest_decade}")
-print(f"n_decades: {n_decades}")
+print(f"lowest_bin: {lowest_bin}")
+print(f"highest_bin: {highest_bin}")
+print(f"n_decades: {n_bins}")
 
 # Initialize binned_data array of data frames, and array of np arrays that we'll use
 #   to set the bins. It is pretty idiotic but it is the way.
-binned_arrays = [[] for i in range(0, n_decades)]
+binned_arrays = [[] for i in range(0, n_bins)]
 binned_data = []
 
 # remove string fields from all data.
@@ -121,7 +122,7 @@ imputer.fit_transform(all_data)
 # all_data = all_data.dropna()
 
 for lower in bins:
-    upper = lower + 10
+    upper = lower + bin_size
     binned_data.append(all_data.loc[(np.int32(all_data['year']) >= lower) & (np.int32(all_data['year']) < upper)])
 
 # Remove years
@@ -132,7 +133,7 @@ for i, bin in enumerate(binned_data):
 # For analyzation purposes, we want to cap the PCA analysis on 10 components.
 #   Consequently, we discard a bin if it has < 10 samples to draw from,
 #   which would cause the PCA to runtime crash.
-binned_data = [bin for bin in binned_data if len(bin) >= 10]
+#binned_data = [bin for bin in binned_data if len(bin) >= 10]
 
 # Analyze all bins. Analyzation consists of a list of 3 tuples with:
 #   1. The PCA object
@@ -140,3 +141,7 @@ binned_data = [bin for bin in binned_data if len(bin) >= 10]
 #   3. The scaler object that was used to normalize the bin data.
 binned_analyzation = analyze_bins(binned_data)
 
+# Print some stats.
+for i, bin_analyzation in enumerate(binned_analyzation):
+    print(f"bin {bins[i]} explained variance ratio: {bin_analyzation[0].explained_variance_ratio_}")
+    print(f"bin {bins[i]} summed variance ratio: {sum(bin_analyzation[0].explained_variance_ratio_)}")
