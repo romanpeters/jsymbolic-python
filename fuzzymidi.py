@@ -11,7 +11,7 @@ from pprint import pprint
 
 
 from fuzzywuzzy import fuzz
-
+from tqdm import tqdm
 
 def checkmapping():
 
@@ -44,7 +44,7 @@ def find_best_file(query,files):
         # distance = 0
         distance = fuzz.ratio(midi_file,query)
         if distance > best_distance:
-            print(f'best_title {midi_file} is better')
+#            print(f'best_title {midi_file} is better')
             best_distance = distance
             best_title = midi_file
     return best_title,best_distance
@@ -52,15 +52,15 @@ def find_best_file(query,files):
 
 def get_files(mepje): 
     
-    files = list(map(lambda x: x.name, list(Path("examples/data/output").rglob('*.mid'))))
+    files = list(map(lambda x: x.name, list(Path("/Users/romanpeters/Desktop/SMT_Project/RAG-private/RAG/run").rglob('*.mid'))))
     # pprint(files)
     mepje["match_found"] = [""] * len(mepje)
     mepje["match_score"] = [0] * len(mepje)
 
-    for index,mep in mepje.iterrows():
-        print(f'Checking if {mep["MIDI_query"]} exists..')
+    for index,mep in tqdm(mepje.iterrows(), total=len(mepje)):
+#        print(f'Checking if {mep["MIDI_query"]} exists..')
         best_title, best_distance = find_best_file(mep["MIDI_query"],files)
-        print(f'resultaat: {best_title} met score {best_distance}')
+#        print(f'resultaat: {best_title} met score {best_distance}')
         mepje.at[index, 'match_found'] = best_title
         mepje.at[index, 'match_score'] = best_distance
 
