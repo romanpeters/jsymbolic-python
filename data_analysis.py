@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, Imputer
 
 import matplotlib.pyplot as plt
 
@@ -21,25 +21,28 @@ def show_all_histograms(data_frame):
 #   subsequent queries according to the properties in the scaler.   
 def pca_decomposition(data_frame):
     #Standardize data
-    scaler = MinMaxScaler()
-    x = scaler.fit_transform(data_frame)
-    pca = PCA()
+    imputer = Imputer(strategy= "mean", axis = 0)
+
+    scaler = StandardScaler()
+    x = scaler.fit_transform(imputer.fit_transform(data_frame))
+
     # Alternatively, choose n_components to a user defined dimensionality, e.g:
-    # pca = PCA(n_components=3)
+    pca = PCA()
+    #pca = PCA(n_components=10)
     components = pca.fit_transform(x)
     pc_df = pd.DataFrame(data = components, columns = [f"principal component {x}" for x in range(0, pca.n_components_)])
     print(pc_df)
     print(pca.explained_variance_)
     print(pca.explained_variance_ratio_)
     print(sum(pca.explained_variance_ratio_))
-    return (pca, pc_pf, scaler)
+    return (pca, pc_df, scaler)
 
 # Performs PCA on all bins, collects transformations and dataframes.
 def analyze_bins(data_frames):
     pca_results = []
     for i in range(0, len(data_frames)):
         pca_results.append(pca_decomposition(data_frames[i]))
-    return results
+    return pca_results
 
 # Euclidean distance computation w/ respect to the transformed feature vector
 #   space for each bin, smallest distance wins.
@@ -71,9 +74,9 @@ def query_all_bins(bins, query):
     
     return bin_id
 
-all_data = pd.read_csv(filepath_or_buffer="dataframe.csv") 
-min_year = all_data['year'].min()
-max_year = all_data['year'].max()
+all_data = pd.read_csv(filepath_or_buffer="data/dataframe.csv") 
+min_year = np.int32(all_data['year'].min())
+max_year = np.int32(all_data['year'].max())
 lowest_decade = min_year - (min_year % 10)
 highest_decade = max_year - (max_year % 10)
 n_decades = ((highest_decade - lowest_decade) // 10) + 1
@@ -92,22 +95,38 @@ print(f"n_decades: {n_decades}")
 binned_arrays = [[] for i in range(0, n_decades)]
 binned_data = []
 
+# remove string fields from all data.
+all_data = all_data.drop(columns=['midi', 'midi_query', 'midi_unformatted'])
+
+# Remove id fields because they are not really part of the feature vectors
+all_data = all_data.drop(columns = ['id'])
+
+# Remove match_score field as it is used for grabbing the feature vectors and midi's
+all_data = all_data.drop(columns = ['match_score'])
+
+# There seems to be another unamed id field, drop it.
+all_data = all_data.loc[:, ~all_data.columns.str.contains('^Unnamed')]
+
+# Convert all inf values to NaN, then drop all rows that have a NaN column.
+all_data = all_data.replace([np.inf, -np.inf], np.nan)
+all_data = all_data.dropna()
+
 for lower in bins:
     upper = lower + 10
-    binned_data.append(all_data.loc[(all_data['year'] >= lower) & (all_data['year'] < upper)])
+    binned_data.append(all_data.loc[(np.int32(all_data['year']) >= lower) & (np.int32(all_data['year']) < upper)])
 
-print(binned_data)
+# Remove years
+i = 0
+for bin in binned_data:
+    bin = bin.drop(columns = ['year'])
+    print(f"bin {bins[i]} holds {len(bin)} songs.")
+    #print(bin)
+    i+=1
+
+analyze_bins(binned_data)
+
 
 # Put array data in new dataframes
-
-# binned_data = all_data.groupby(pd.cut(all_data['year'], bins), as_index=False)..to_frame()
-# for group in binned_data:
-#     decade = group['year'].min() - (group['year'].min() % 10)
-#     #print(f"data for decade {decade}:")
-#     print(f"{group}")
-
-
-
 # Bin the dataframe on a decade basis
 #pca_decomposition(df)
 
