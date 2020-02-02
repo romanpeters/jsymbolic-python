@@ -42,8 +42,9 @@ def find_best_file(query,files):
 
     for midi_file in files:
         # distance = 0
-        distance = fuzz.ratio(query, midi_file)
+        distance = fuzz.ratio(midi_file,query)
         if distance > best_distance:
+            print(f'best_title {midi_file} is better')
             best_distance = distance
             best_title = midi_file
     return best_title,best_distance
@@ -52,7 +53,7 @@ def find_best_file(query,files):
 def get_files(mepje): 
     
     files = list(map(lambda x: x.name, list(Path("examples/data/output").rglob('*.mid'))))
-    pprint(files)
+    # pprint(files)
     mepje["match_found"] = [""] * len(mepje)
     mepje["match_score"] = [0] * len(mepje)
 
@@ -66,7 +67,7 @@ def get_files(mepje):
         # mepje["ID"==index,"match_found"] = best_title    
         # mepje["ID"==index,"match_score"] = best_distance    
             # print(f'Result when comparing {midi_file}: {distance}')
-    pprint(mepje)
+    # pprint(mepje)
     mepje.to_csv(path_or_buf="combined_mapping.csv",header=True,index=True)
 
     # filtered_midi_names = [x[0:-4] for x in raw_midi_paths] #through away the extention
