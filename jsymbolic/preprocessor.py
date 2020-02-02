@@ -27,7 +27,7 @@ class FileItem(object):
         flatter = name.lower()
         flatter = flatter.replace(' ', '_')
 
-        regex_filter = re.compile(r"[^a-zA-Z_.]")
+        regex_filter = re.compile(r"[^0-9a-zA-Z_.]")
         flat_name = regex_filter.sub('', flatter)
 
         logging.info(f"{name} -> {flat_name}")
