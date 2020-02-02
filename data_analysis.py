@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, Imputer
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.impute import SimpleImputer
 
 import matplotlib.pyplot as plt
 
@@ -21,20 +22,19 @@ def show_all_histograms(data_frame):
 #   subsequent queries according to the properties in the scaler.   
 def pca_decomposition(data_frame):
     #Standardize data
-    imputer = Imputer(strategy= "mean", axis = 0)
 
     scaler = StandardScaler()
     x = scaler.fit_transform(imputer.fit_transform(data_frame))
 
     # Alternatively, choose n_components to a user defined dimensionality, e.g:
-    pca = PCA()
-    #pca = PCA(n_components=10)
+    #pca = PCA()
+    pca = PCA(n_components=10)
     components = pca.fit_transform(x)
     pc_df = pd.DataFrame(data = components, columns = [f"principal component {x}" for x in range(0, pca.n_components_)])
-    print(pc_df)
-    print(pca.explained_variance_)
-    print(pca.explained_variance_ratio_)
-    print(sum(pca.explained_variance_ratio_))
+    # print(pc_df)
+    # print(pca.explained_variance_)
+    # print(pca.explained_variance_ratio_)
+    # print(sum(pca.explained_variance_ratio_))
     return (pca, pc_df, scaler)
 
 # Performs PCA on all bins, collects transformations and dataframes.
@@ -107,46 +107,36 @@ all_data = all_data.drop(columns = ['match_score'])
 # There seems to be another unamed id field, drop it.
 all_data = all_data.loc[:, ~all_data.columns.str.contains('^Unnamed')]
 
+# The data has rows that have missing values for specific features.
+#   If we discard all problematic rows, we lose (1 - 451/2573) = 83% of our samples.
+#   In an effort to reduce this problem, we use an Imputer to guesstimate values for the missing features based on
+#   other samples.
+imputer = SimpleImputer(strategy='mean')
+imputer.fit_transform(all_data)
+
+# NOTE: below you can see the alternative to imputing, which means remove all rows that have
+# problematic values.
 # Convert all inf values to NaN, then drop all rows that have a NaN column.
-all_data = all_data.replace([np.inf, -np.inf], np.nan)
-all_data = all_data.dropna()
+# all_data = all_data.replace([np.inf, -np.inf], np.nan)
+# all_data = all_data.dropna()
 
 for lower in bins:
     upper = lower + 10
     binned_data.append(all_data.loc[(np.int32(all_data['year']) >= lower) & (np.int32(all_data['year']) < upper)])
 
 # Remove years
-i = 0
-for bin in binned_data:
+for i, bin in enumerate(binned_data):
     bin = bin.drop(columns = ['year'])
     print(f"bin {bins[i]} holds {len(bin)} songs.")
-    #print(bin)
-    i+=1
 
-analyze_bins(binned_data)
+# For analyzation purposes, we want to cap the PCA analysis on 10 components.
+#   Consequently, we discard a bin if it has < 10 samples to draw from,
+#   which would cause the PCA to runtime crash.
+binned_data = [bin for bin in binned_data if len(bin) >= 10]
 
+# Analyze all bins. Analyzation consists of a list of 3 tuples with:
+#   1. The PCA object
+#   2. The bin expressed as dataframe in its principal components
+#   3. The scaler object that was used to normalize the bin data.
+binned_analyzation = analyze_bins(binned_data)
 
-# Put array data in new dataframes
-# Bin the dataframe on a decade basis
-#pca_decomposition(df)
-
-
-#print(dataframe)
-#pca = pca_decomposition(standardize(dataframe))
-
-
-
-
-# print("Dummy data for refference:")
-# print(dummy_data)
-# # Histogram computations
-# # show_all_histograms(dummy_data)
-# 
-# 
-# # Principal component analysis
-# print("PCA analysis results:")
-# pca = pca_decomposition(dummy_data)
-# print(f"components: {pca.components_}")
-# print(f"explained variance: {pca.explained_variance_}")
-# print(f"explained variance ratio: {pca.explained_variance_ratio_}")
-# print(f"singular values: {pca.singular_values_}")
