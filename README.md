@@ -36,4 +36,4 @@ Why would you use jsymbolic-python instead of plain jSymbolic2?
 1. Prevent common jSymbolic2 problems, such as it running out of memory or CSV file creation failure.
 1. Safe batch processing: Failure on a single MIDI file does not stop the process, and the batch process can be interrupted and continued.
 1. Automatically use sane defaults.
-1. Allow for scripting your processing and pre-processing through Python.
+1. Allow for scripting your pre-processing and processing through Python.

@@ -73,7 +73,7 @@ class App(object):
                   f"-jar {self.jsymbolic_path} " \
                   f"-configrun {config_path if config_path else self.config_path}"
         print(command)
-        raise NotImplementedError
+        raise NotImplementedError  # TODO
 
     def get_config(self):
         """Returns the current config"""
@@ -136,9 +136,6 @@ class App(object):
             self.execute_command(self.command)
         print("jSymbolic processing completed!")
 
-
-
-
     def execute_command(self, command: Command):
         """Run the current configuration
         Added parameters will overwrite the configuration"""
@@ -152,12 +149,13 @@ class App(object):
             process = subprocess.run(shlex.split(command_string),
                                      stdout=subprocess.PIPE,
                                      universal_newlines=True)
-            #logging.debug(process.stdout)
+            logging.debug(process.stdout)
 
-class ThreadMeister9000(App):
+
+class MultiThreadApp(App):
     """Experimental"""
     def __init__(self, *args, thread_count=4, **kwargs):
-        super(ThreadMeister9000, self).__init__(*args, **kwargs)
+        super(MultiThreadApp, self).__init__(*args, **kwargs)
         self.thread_count = thread_count
         logging.warning("Threading is experimental!")
 
@@ -196,9 +194,8 @@ class ThreadMeister9000(App):
         pool = Pool(self.thread_count)
         for _ in tqdm(pool.imap_unordered(self.execute_command, tasks), total=len(files)):
             pass
-        pool.close()  # POOL'S CLOSED
+        pool.close()
         pool.join()
-
         print("jSymbolic processing completed!")
 
 
