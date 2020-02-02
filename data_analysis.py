@@ -1,3 +1,4 @@
+from math import sqrt
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
@@ -24,8 +25,7 @@ def pca_decomposition(data_frame):
     #Standardize data
 
     scaler = StandardScaler()
-    x = scaler.fit_transform(imputer.fit_transform(data_frame))
-
+    x = scaler.fit_transform(data_frame)
     # Alternatively, choose n_components to a user defined dimensionality, e.g:
     pca = PCA()
     #pca = PCA(n_components=10)
@@ -58,10 +58,10 @@ def query_all_bins(bins, query):
         scaled_query = scaler.transform(query)
 
         # transorm the query to the shape of the binned PCA
-        transformed_scaled_query = pca.transform(scaled_query)
+        transformed_scaled_query = pca.transform(scaled_query)[0]
 
         pc_means = pc_df.mean(axis=0)
-        distance_frame = transformed_scaled_query.sub(pc_means).abs()
+        distance_frame = np.subtract(transformed_scaled_query, pc_means).abs()
         squared_distance = distance_frame.dot(distance_frame)
         distances.append(sqrt(squared_distance))
     
@@ -75,7 +75,7 @@ def query_all_bins(bins, query):
     return bin_id
 
 all_data = pd.read_csv(filepath_or_buffer="data/dataframe.csv") 
-bin_size = 15
+bin_size = 10
 min_year = np.int32(all_data['year'].min())
 max_year = np.int32(all_data['year'].max())
 lowest_bin = min_year - (min_year % bin_size)
@@ -89,7 +89,7 @@ print(f"min_year: {min_year}")
 print(f"max_year: {max_year}")
 print(f"lowest_bin: {lowest_bin}")
 print(f"highest_bin: {highest_bin}")
-print(f"n_decades: {n_bins}")
+print(f"n_bins: {n_bins}")
 
 # Initialize binned_data array of data frames, and array of np arrays that we'll use
 #   to set the bins. It is pretty idiotic but it is the way.
@@ -113,7 +113,8 @@ all_data = all_data.loc[:, ~all_data.columns.str.contains('^Unnamed')]
 #   In an effort to reduce this problem, we use an Imputer to guesstimate values for the missing features based on
 #   other samples.
 imputer = SimpleImputer(strategy='mean')
-imputer.fit_transform(all_data)
+columns_copy = all_data.columns
+all_data = pd.DataFrame(imputer.fit_transform(all_data), columns = columns_copy)
 
 # NOTE: below you can see the alternative to imputing, which means remove all rows that have
 # problematic values.
@@ -121,14 +122,16 @@ imputer.fit_transform(all_data)
 # all_data = all_data.replace([np.inf, -np.inf], np.nan)
 # all_data = all_data.dropna()
 
+# Write data to the binned data frames
 for lower in bins:
     upper = lower + bin_size
     binned_data.append(all_data.loc[(np.int32(all_data['year']) >= lower) & (np.int32(all_data['year']) < upper)])
 
-# Remove years
-for i, bin in enumerate(binned_data):
-    bin = bin.drop(columns = ['year'])
+# Remove years, print bin stats
+for i, b in enumerate(binned_data):
+    bin = b.drop(columns = ['year'])
     print(f"bin {bins[i]} holds {len(bin)} songs.")
+    binned_data[i] = bin
 
 # For analyzation purposes, we want to cap the PCA analysis on 10 components.
 #   Consequently, we discard a bin if it has < 10 samples to draw from,
@@ -142,6 +145,25 @@ for i, bin in enumerate(binned_data):
 binned_analyzation = analyze_bins(binned_data)
 
 # Print some stats.
-for i, bin_analyzation in enumerate(binned_analyzation):
-    print(f"bin {bins[i]} explained variance ratio: {bin_analyzation[0].explained_variance_ratio_}")
-    print(f"bin {bins[i]} summed variance ratio: {sum(bin_analyzation[0].explained_variance_ratio_)}")
+# for i, bin_analyzation in enumerate(binned_analyzation):
+    # print(f"bin {bins[i]} explained variance ratio: {bin_analyzation[0].explained_variance_ratio_}")
+    # print(f"bin {bins[i]} summed variance ratio: {sum(bin_analyzation[0].explained_variance_ratio_)}")
+
+bin_results = []
+counter = 0
+for query in all_data.itertuples():
+    print(counter)
+    bin_results.append(query_all_bins(binned_analyzation, all_data.loc[[i]].drop(columns=['year'])))
+    counter+=1
+
+correct = 0
+wrong = 0
+for i, bin in enumerate(bin_results):
+    year = np.int32(all_data.loc[[i], ['year']])
+    if year >= bins[bin] and year < bins[bin] + bin_size:
+        correct += 1
+    else:
+        wrong += 1
+
+print(f"wrong: {wrong}")
+print(f"correct: {correct}")
