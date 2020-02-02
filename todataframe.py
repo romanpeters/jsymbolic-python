@@ -17,17 +17,9 @@ import re
 from random import seed
 
 
-#copied from jsymbolic/preprocessor.py
-def flatten(name):
-    """Removes special characters"""
-    flatter = name.lower()
-    flatter = flatter.replace(' ', '_')
 
-    regex_filter = re.compile(r"[^a-zA-Z_.]")
-    flat_name = regex_filter.sub('', flatter)
 
-    logging.info(f"{name} -> {flat_name}")
-    return flat_name
+
 
 
 # mapping = pd.DataFrame ({'id':  [],'midi': [],'year': []}, columns = ['id','midi','year'])
@@ -35,9 +27,9 @@ mapping = None
 
 def read_midi_mapping():
 
-	mapping = pd.read_csv("MIDItoYEAR.csv")
-	mapping.columns = ["id","midi","year"]
-	mapping["midi"] = mapping["midi"].apply(lambda x: flatten(ntpath.basename(x)))
+	mapping = pd.read_csv("combined_mapping.csv")
+	mapping.columns = ["id","midi_unformatted","year","midi_query","midi","match_score"]
+	
 	mapping.to_csv(path_or_buf="mapping.csv",header=True,index=True)
 	return mapping
 	# print(mapping)
@@ -88,12 +80,15 @@ def read_csv_from_folder(folder,mapping):
 	df1.columns = columns
 	rand_years = [random.randrange(1901, 2000) for iter in range(len(midi_names))]
 	# print(rand_years)
-	df1.insert(0,"year",rand_years)
+	# df1.insert(0,"year",rand_years)
 	df1.insert(0,"midi",midi_names)
 	# print(columns)
+	print("Losse stukken:")
 	print(df1)
+	print(mapping)
 
 	df = pd.merge(df1, mapping, on='midi')
+	print(f'After merging there are {len(df)} rows in df')
 	df.to_csv(path_or_buf="dataframe.csv",header=True,index=True)
 	print("./Written to dataframe.csv file")
 
@@ -116,7 +111,7 @@ def read_csv_file(filename,midi_names,datasets):
 
 				row_count += 1
 			else:
-				midi_name = ntpath.basename(row[0])
+				midi_name = '-'.join(ntpath.basename(row[0]).split('-')[1:])
 				midi_names.append(midi_name)
 
 				# print(midi_name)
